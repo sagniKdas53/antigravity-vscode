@@ -26,6 +26,7 @@ official CLI does the work. The extension never bundles the CLI — it drives th
 | **Sign‑in gate** | If you aren't signed in (or the CLI isn't installed), the panel shows only a **Sign in with Google** / **Install CLI** action — the chat appears once you're ready. |
 | **Slash‑command navigator** | Type `/` to browse and run all 35 real Antigravity commands (`/goal`, `/diff`, `/model`, `/permissions`, `/rewind`, `/mcp`, …), aliases included, with autocomplete. The catalog is captured from the live CLI, so it matches what `agy` actually offers. |
 | **Ask About Selection** | Send highlighted code (with file + line context) to the agent. |
+| **Diagnostic quick fix** | Any line with a warning or error offers an **Ask Antigravity to fix this** quick fix (lightbulb), sending the diagnostic message(s) plus the line's code to the agent. |
 | **CLI lifecycle** | Install, update, view the changelog, and manage plugins from the command palette or the panel's overflow menu. |
 
 ## Requirements

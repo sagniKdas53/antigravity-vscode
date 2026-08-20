@@ -9,6 +9,14 @@ All notable changes to this project are documented here. The format follows
 Cross-platform robustness and interactive-output fixes, grounded in probing the
 real `agy` TUI end-to-end.
 
+### Added
+
+- **Diagnostic quick fix.** Any line with a warning or error now offers an
+  **Ask Antigravity to fix this** quick fix (lightbulb / `Cmd+.`), sending the
+  diagnostic's message, severity, source, and code — plus the line itself —
+  to the agent as a prompt, the same way **Ask About Selection** does for a
+  manual selection.
+
 ### Fixed
 
 - **Windows sign-in / lifecycle commands no longer fail on PowerShell (#2).**

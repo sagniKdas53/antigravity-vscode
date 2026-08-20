@@ -6,6 +6,7 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 
+import { buildDiagnosticPrompt, DiagnosticSummary } from "../core/diagnosticPrompt";
 import { decideOnboarding } from "../core/onboarding";
 import { CliService } from "../services/cliService";
 import { TerminalService } from "../services/terminalService";
@@ -53,6 +54,16 @@ export function registerCommands(context: vscode.ExtensionContext, deps: Command
     if (question) {
       chat.ask(buildSelectionPrompt(editor, question));
     }
+  });
+
+  // Invoked only from the diagnostic quick fix (`ui/diagnosticCodeActionProvider`)
+  // with the arguments it built — not exposed in package.json/Command Palette,
+  // same as other argument-only internal commands.
+  on("antigravity.askAboutDiagnostics", (...args: unknown[]) => {
+    const [document, line, diagnostics] = args as [vscode.TextDocument, number, DiagnosticSummary[]];
+    const rel = vscode.workspace.asRelativePath(document.uri);
+    const lineText = document.lineAt(line).text.trim();
+    chat.ask(buildDiagnosticPrompt(rel, document.languageId, lineText, line + 1, diagnostics));
   });
 
   // --- Interactive sessions --------------------------------------------------
