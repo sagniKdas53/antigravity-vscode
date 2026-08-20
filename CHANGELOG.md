@@ -9,6 +9,16 @@ All notable changes to this project are documented here. The format follows
 Cross-platform robustness and interactive-output fixes, grounded in probing the
 real `agy` TUI end-to-end.
 
+### Added
+
+- **`.vsix` build docs + a fork-friendly "Build VSIX" Action.** CONTRIBUTING.md
+  now documents `vsce package` for a local `.vsix` build. The new
+  [`build-vsix.yml`](.github/workflows/build-vsix.yml) workflow
+  (manually triggered, or on a `v*.*.*` tag push) packages the extension and
+  uploads it as a downloadable artifact — and attaches it to a GitHub release
+  on a tag push — without touching the VS Code Marketplace or needing
+  `VSCE_PAT`, so it runs on any fork.
+
 ### Fixed
 
 - **Windows sign-in / lifecycle commands no longer fail on PowerShell (#2).**
