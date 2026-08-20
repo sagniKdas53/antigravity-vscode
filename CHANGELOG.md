@@ -9,6 +9,16 @@ All notable changes to this project are documented here. The format follows
 Cross-platform robustness and interactive-output fixes, grounded in probing the
 real `agy` TUI end-to-end.
 
+### Changed
+
+- **Marketplace icon (`media/logo.png` / `media/logo.svg`) replaced.** The
+  previous artwork was Google's actual Antigravity product logo (sourced from
+  a third-party logo repository), which goes beyond nominative fair use when
+  shipped as this unofficial extension's own listing icon. It's replaced with
+  an original, brand-neutral "liftoff" mark. The activity-bar icon
+  (`media/icon.svg`, an Apache-2.0-licensed Material Symbols glyph) is
+  unaffected.
+
 ### Fixed
 
 - **Windows sign-in / lifecycle commands no longer fail on PowerShell (#2).**
