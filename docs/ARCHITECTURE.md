@@ -89,6 +89,9 @@ Unit‑tested on bare Node (`tsconfig.test.json` compiles only `core/` + tests):
 - **`processRunner`** — a promise wrapper over `child_process.spawn` with
   streaming callbacks, timeout, and cancellation; never rejects (spawn failures
   surface as `result.spawnError`). Used for one-shot probes like `--version`.
+- **`diagnosticPrompt`** — builds the "fix this" prompt for the diagnostic
+  quick fix from a plain `DiagnosticSummary` (message/severity/source/code),
+  not a `vscode.Diagnostic`, so it stays `vscode`-free like the rest of `core/`.
 
 ### `services/` — the VS Code bridge
 
@@ -126,6 +129,13 @@ Unit‑tested on bare Node (`tsconfig.test.json` compiles only `core/` + tests):
   turn as `streamStart → assistantText* → streamEnd`, where `assistantText`
   carries the full current reply (a replace, since the screen is the source of
   truth).
+
+- **`DiagnosticCodeActionProvider`** offers an "Ask Antigravity to fix this"
+  quick fix on any line with a diagnostic, in every language. It reduces each
+  `vscode.Diagnostic` to a plain `DiagnosticSummary` and hands off to the
+  `antigravity.askAboutDiagnostics` command, which builds the prompt
+  (`core/diagnosticPrompt`) and routes it through the same `chat.ask` path as
+  "Ask About Selection".
 
 ### `commands/` and `extension.ts`
 

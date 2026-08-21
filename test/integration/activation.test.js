@@ -19,7 +19,7 @@ const path = require("node:path");
 const Module = require("node:module");
 
 // --- Minimal vscode mock ----------------------------------------------------
-const registered = { commands: [], webviews: [], subscriptions: 0 };
+const registered = { commands: [], webviews: [], codeActionProviders: [], subscriptions: 0 };
 
 function disposable() {
   return { dispose() {} };
@@ -28,9 +28,18 @@ function disposable() {
 const vscodeMock = {
   StatusBarAlignment: { Left: 1, Right: 2 },
   ConfigurationTarget: { Global: 1, Workspace: 2 },
+  DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2, Hint: 3 },
+  CodeActionKind: { QuickFix: { value: "quickfix" } },
+  CodeAction: class { constructor(title, kind) { this.title = title; this.kind = kind; } },
   ThemeColor: class { constructor(id) { this.id = id; } },
   ThemeIcon: class { constructor(id) { this.id = id; } },
   EventEmitter: class { constructor() { this.event = () => disposable(); } fire() {} dispose() {} },
+  languages: {
+    registerCodeActionsProvider: (selector) => {
+      registered.codeActionProviders.push(selector);
+      return disposable();
+    }
+  },
   Uri: {
     joinPath: (base, ...parts) => {
       const fsPath = [base.fsPath || base, ...parts].join("/");
@@ -102,6 +111,7 @@ describe("extension activation (against the bundled dist with a mocked vscode)",
     ext.activate(context);
 
     assert.ok(registered.webviews.includes("antigravity.chatView"), "chat webview not registered");
+    assert.strictEqual(registered.codeActionProviders.length, 1, "diagnostic code action provider not registered");
 
     const ids = registered.commands.map((c) => c.id);
     for (const expected of [
@@ -109,6 +119,7 @@ describe("extension activation (against the bundled dist with a mocked vscode)",
       "antigravity.newChat",
       "antigravity.ask",
       "antigravity.askWithSelection",
+      "antigravity.askAboutDiagnostics",
       "antigravity.insertSlashCommand",
       "antigravity.startSession",
       "antigravity.login",

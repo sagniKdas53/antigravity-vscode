@@ -18,6 +18,7 @@ import { CliService } from "./services/cliService";
 import { InteractiveSessionService } from "./services/interactiveSession";
 import { TerminalService } from "./services/terminalService";
 import { ChatViewProvider } from "./ui/chatViewProvider";
+import { DiagnosticCodeActionProvider } from "./ui/diagnosticCodeActionProvider";
 
 /** Called by VS Code the first time any activation event fires. */
 export function activate(context: vscode.ExtensionContext): void {
@@ -38,13 +39,18 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  // 3. Commands + lifecycle.
+  // 3. Diagnostic quick fix ("Ask Antigravity to fix this") in every language.
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider("*", new DiagnosticCodeActionProvider(), DiagnosticCodeActionProvider.metadata)
+  );
+
+  // 4. Commands + lifecycle.
   registerCommands(context, { cli, terminal, chat });
   context.subscriptions.push({ dispose: () => terminal.dispose() });
   // Kill every background interactive `agy` process on shutdown.
   context.subscriptions.push({ dispose: () => interactive.disposeAll() });
 
-  // 4. Refresh the panel when relevant settings change.
+  // 5. Refresh the panel when relevant settings change.
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (e.affectsConfiguration("antigravity")) {
