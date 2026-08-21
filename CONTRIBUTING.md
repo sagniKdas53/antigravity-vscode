@@ -101,6 +101,34 @@ npm test
 
 `pretest` compiles the test TypeScript (`tsconfig.test.json`) and runs a dev build first, then Mocha picks up `out/test/**/*.test.js`. Add tests for any logic that can be unit-tested (screen parsing, arg building, binary resolution).
 
+### Building a `.vsix` locally
+
+To install your build in a real VS Code (`code --install-extension`, or the
+Extensions view's "Install from VSIX…") instead of using the Extension
+Development Host:
+
+```bash
+npm ci                              # clean install (npm install also works)
+npm run pty:win                     # only if you need the Windows ConPTY prebuilts bundled in
+npm install -g @vscode/vsce         # one-time: the packaging CLI
+vsce package --allow-missing-repository
+```
+
+This produces `antigravity-vscode-<version>.vsix` in the repo root. `--allow-missing-repository`
+is only needed on a fork whose `package.json` `repository.url` doesn't match its actual remote;
+drop it once that's consistent.
+
+Prefer not to install the packaging CLI yourself, or want a build for a
+branch you can't run locally (e.g. to test on another machine)? Trigger the
+[**Build VSIX**](.github/workflows/build-vsix.yml) GitHub Action manually
+(Actions tab → *Build VSIX* → *Run workflow*) on your fork — it packages the
+extension and uploads the `.vsix` as a downloadable build artifact. Pushing a
+`v*.*.*` tag makes it also attach the `.vsix` to a GitHub release. Unlike
+[`release.yml`](.github/workflows/release.yml) (which runs only on `dev` →
+`main` merges and needs marketplace publish credentials this repo's
+maintainers hold), **Build VSIX** needs no secrets and is safe to run from
+any fork.
+
 ### Opening a PR
 
 - Target branch: **`dev`**.
