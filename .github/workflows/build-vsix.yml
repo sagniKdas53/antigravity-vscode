@@ -1,0 +1,66 @@
+name: Build VSIX
+
+# Fork/contributor-friendly build: package a .vsix and attach it to a GitHub
+# Release, without touching the VS Code Marketplace (no VSCE_PAT needed) and
+# without depending on the main-branch version-bump trigger `release.yml`
+# uses. Useful for testing a branch's build or cutting an unofficial release
+# from a fork.
+on:
+  workflow_dispatch: {}
+  push:
+    tags: ["v*.*.*"]
+
+jobs:
+  build:
+    name: Build & attach .vsix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # only needed to attach the .vsix to a tag-triggered release
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      # `npm ci` only installs optionalDependencies matching this runner's
+      # platform (linux), so the Windows ConPTY prebuilts are missing until
+      # this force-installs both win32 arches for bundling — same as release.yml.
+      - name: Install Windows ConPTY prebuilts
+        run: npm run pty:win
+
+      - name: Package extension
+        run: |
+          npm install -g @vscode/vsce
+          vsce package --allow-missing-repository
+          VSIX=$(ls *.vsix | head -1)
+          echo "vsix=$VSIX" >> "$GITHUB_ENV"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.vsix }}
+          path: ${{ env.vsix }}
+          retention-days: 30
+
+      # Only on an actual tag push — workflow_dispatch runs stop at the artifact
+      # above, so re-running this manually never creates/overwrites a release.
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.vsix }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
